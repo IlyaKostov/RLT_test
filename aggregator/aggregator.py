@@ -1,21 +1,26 @@
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
+from database.db import MongoDBase
+
 
 class PaymentAggregator:
-    def __init__(self, data: dict[str]):
-        self.dt_from = data.get('dt_from')
-        self.dt_upto = data.get('dt_upto')
-        self.group_type = data.get('group_type')
-        self.dt_from_iso = datetime.fromisoformat(self.dt_from)
-        self.dt_upto_iso = datetime.fromisoformat(self.dt_upto)
-        self.group_format = {
+    def __init__(self, data: dict[str, str]) -> None:
+        self.dt_from: str = data.get('dt_from')
+        self.dt_upto: str = data.get('dt_upto')
+        self.group_type: str = data.get('group_type')
+        self.dt_from_iso: datetime = datetime.fromisoformat(self.dt_from)
+        self.dt_upto_iso: datetime = datetime.fromisoformat(self.dt_upto)
+        self.group_format: dict = {
             'month': '%Y-%m-01T00:00:00',
             'day': '%Y-%m-%dT00:00:00',
             'hour': '%Y-%m-%dT%H:00:00'
         }
 
-    async def aggregate_data(self, db):
+    async def aggregate_data(self, db: MongoDBase) -> dict[str, list]:
+        """
+        Обрабатываем данные из базы, получаем даты и произведенные выплаты
+        """
 
         group_id = {'$dateToString': {'format': self.group_format.get(self.group_type, ''), 'date': '$dt'}}
 
@@ -29,10 +34,14 @@ class PaymentAggregator:
 
         dataset, labels = await self.fill_missing_dates(result_list)
 
-        response = {'dataset': dataset, 'labels': labels}
+        response: dict = {'dataset': dataset, 'labels': labels}
         return response
 
-    async def fill_missing_dates(self, data_list: list[dict[str]]):
+    async def fill_missing_dates(self, data_list: list[dict[str, str]]) -> tuple[list[int], list[str]]:
+        """
+        Дополняем списки датами где нет выплат, устанавливаем значение равное 0
+        """
+
         start_date = self.dt_from_iso
         end_date = self.dt_upto_iso
 

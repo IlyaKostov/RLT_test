@@ -3,18 +3,12 @@ import json
 from aiogram import Router, types
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from aiogram import F
 
 from aggregator.aggregator import PaymentAggregator
 from database.db import MongoDBase
 from telegram_bot.filters import IsFormatFieldsFilter
 
 router = Router()
-
-
-answers = {
-
-}
 
 
 @router.message(CommandStart())

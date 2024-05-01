@@ -11,6 +11,9 @@ class MongoDBase:
         self.collection: AsyncIOMotorCollection = self.current_db[config.collection_name.get_secret_value()]
 
     async def aggregator(self, pipeline):
+        """
+        Получаем список с данными из базы
+        """
         result_list = await self.collection.aggregate(pipeline).to_list(length=None)
         return result_list
 
