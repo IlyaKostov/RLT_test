@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -5,6 +6,9 @@ from database.db import MongoDBase
 
 
 class PaymentAggregator:
+    """
+    Агрегатор данных по выплатам
+    """
     def __init__(self, data: dict[str, str]) -> None:
         self.dt_from: str = data.get('dt_from')
         self.dt_upto: str = data.get('dt_upto')
@@ -17,7 +21,7 @@ class PaymentAggregator:
             'hour': '%Y-%m-%dT%H:00:00'
         }
 
-    async def aggregate_data(self, db: MongoDBase) -> dict[str, list]:
+    async def aggregate_data(self, db: MongoDBase) -> str:
         """
         Обрабатываем данные из базы, получаем даты и произведенные выплаты
         """
@@ -35,7 +39,8 @@ class PaymentAggregator:
         dataset, labels = await self.fill_missing_dates(result_list)
 
         response: dict = {'dataset': dataset, 'labels': labels}
-        return response
+        json_response = json.dumps(response)
+        return json_response
 
     async def fill_missing_dates(self, data_list: list[dict[str, str]]) -> tuple[list[int], list[str]]:
         """

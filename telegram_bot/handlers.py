@@ -22,7 +22,7 @@ async def json_message(message: Message):
     db = MongoDBase()
     aggregator = PaymentAggregator(data)
     result = await aggregator.aggregate_data(db)
-    return await message.answer(str(result))
+    return await message.answer(result)
 
 
 @router.message()
