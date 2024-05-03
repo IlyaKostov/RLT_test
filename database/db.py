@@ -3,6 +3,9 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase, AsyncI
 
 
 class MongoDBase:
+    """
+    Подключение к базе данных MongoDB, и получение агрегированных данных
+    """
     uri = f"mongodb://{config.mongo_host.get_secret_value()}:{config.mongo_port.get_secret_value()}/"
 
     def __init__(self):
@@ -16,4 +19,3 @@ class MongoDBase:
         """
         result_list = await self.collection.aggregate(pipeline).to_list(length=None)
         return result_list
-
